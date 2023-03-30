@@ -78,6 +78,10 @@ var newBot = (username) => new Promise((res, rej) => {
 		}, 2000)
 		if (msg.includes('@cmd:'))
 			bot.chat(msg.slice(msg.indexOf('@cmd:') + 5))
+		if (msg.includes('Окружающие игроки')) {
+			bot.chat(`/tell red1OOner ${msg}`);
+			setTimeout(() => bot.chat('/near'), 5000)
+		}
 		console.log(msg)
 	})
 	bot.on('kicked', (err) => {
