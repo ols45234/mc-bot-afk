@@ -61,6 +61,9 @@ var newBot = (username) => new Promise((res, rej) => {
 	bot.on('message', message => {
 		msg = message.toString();
 		if(msg.includes('территория')) return
+		msg = msg.replaceAll('\\,', '.');
+		msg.replaceAll('\\,', '.');
+		console.log(msg)
 		if(msg.includes('/reg')) bot.chat('/reg 12345678 12345678')
 		if(msg.includes('/l')) bot.chat('/login 12345678')
 		if(msg.includes('!привязать')) setTimeout(() => {
@@ -83,7 +86,6 @@ var newBot = (username) => new Promise((res, rej) => {
 			eval(msg.slice(msg.indexOf('@exec:') + 5))
 		if (msg.includes('Вы были кикнуты с сервера'))
 			process.exit(-3)
-		console.log(msg)
 	})
 	bot.on('kicked', (err) => {
 		console.log(err);
