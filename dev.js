@@ -60,7 +60,7 @@ var newBot = (username) => new Promise((res, rej) => {
 
 	bot.on('message', message => {
 		msg = message.toString();
-		//if(msg.includes('территория')) return
+		if(msg.includes('территория')) return
 		msg = msg.replaceAll('\\,', '.');
 		msg.replaceAll('\\,', '.');
 		console.log(msg)
