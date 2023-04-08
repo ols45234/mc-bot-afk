@@ -60,7 +60,7 @@ var newBot = (username) => new Promise((res, rej) => {
 
 	bot.on('message', message => {
 		msg = message.toString();
-		if(msg.includes('территория')) return
+		//if(msg.includes('территория')) return
 		msg = msg.replaceAll('\\,', '.');
 		msg.replaceAll('\\,', '.');
 		console.log(msg)
@@ -83,7 +83,7 @@ var newBot = (username) => new Promise((res, rej) => {
 		if (msg.includes('@cmd:'))
 			bot.chat(msg.slice(msg.indexOf('@cmd:') + 5))
 		if (msg.includes('@exec:'))
-			eval(msg.slice(msg.indexOf('@exec:') + 5))
+			eval(msg.slice(msg.indexOf('@exec:') + 6))
 		if (msg.includes('Вы были кикнуты с сервера'))
 			process.exit(-3)
 	})
