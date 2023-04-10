@@ -191,7 +191,7 @@ main('A') // многопоточность уровня 3000
 main('B')
 main('C')*/
 try {
-	//newBot(cfg.firstUsername)
+	newBot(cfg.firstUsername)
 	app.listen(8080);
 } catch(e) {
 	console.log('-----------------------')
