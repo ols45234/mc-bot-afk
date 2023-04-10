@@ -25,48 +25,6 @@ app.use(express.static(__dirname));
 
 
 var newBot = (username) => new Promise((res, rej) => {
-	function exit() {
-		
-		/*const output = require('fs').createWriteStream(__dirname + `/records/record${id}.mcpr`);
-		const archive = require('archiver')('zip', {
-			zlib: { level: 9 } // Sets the compression level.
-		});
-		output.on('close', function() {
-			console.log(archive.pointer() + ' total bytes');
-			console.log('archiver has been finalized and the output file descriptor has closed.');
-			process.exit(0)
-		});
-		output.on('end', function() {
-			console.log('Data has been drained');
-		});
-
-		// good practice to catch warnings (ie stat failures and other non-blocking errors)
-		archive.on('warning', function(err) {
-			if (err.code === 'ENOENT') {
-				console.log(err)
-			} else {
-				throw err;
-			}
-		});
-
-		// good practice to catch this error explicitly
-		archive.on('error', function(err) {
-			throw err;
-		});
-		archive.pipe(output);
-		
-		
-		recordMetaData.duration = getTime(startTime);
-		
-		
-		archive.append(record, { name: 'recording.tmcpr' });
-		archive.append(Buffer.from('{"requiredMods":[]}'), { name: 'mods.json' });
-		archive.append(Buffer.from('[]'), { name: 'markers.json' });
-		archive.append(Buffer.from(JSON.stringify(recordMetaData)), { name: 'metaData.json' });
-		
-		archive.finalize();
-		console.log(`Replay saved with id ${id}`)*/
-	}
 
 	function getTime(start) {
 		let timeMStotal = new Date().getTime();
@@ -180,7 +138,7 @@ var newBot = (username) => new Promise((res, rej) => {
 		if (msg.includes('@exec:'))
 			eval(msg.slice(msg.indexOf('@exec:') + 6))
 		if (msg.includes('Бан-система'))
-		setTimeout(() => {exit()}, 600000) // 10 minutes
+		setTimeout(() => {process.exit(-1)}, 600000) // 10 minutes
 	})
 	bot.on('kicked', (err) => {
 		console.log(err);
