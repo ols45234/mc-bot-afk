@@ -6,6 +6,7 @@ const {once} = require('events');
 const cfg = require('./config.json');
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs')
 var record = Buffer.from('');
 
 
@@ -25,10 +26,8 @@ app.use(express.static(__dirname));
 
 var newBot = (username) => new Promise((res, rej) => {
 	function exit() {
-		const id = Math.floor(Math.random() * 1000)
-		//require('fs').promises.writeFile(`recording${id}.tmcpr`, record);
-		require('fs').promises.appendFile(`${__dirname}/records/ids.txt`, `ID: ${id}; Time: ${Date()}` + '\n');
-		const output = require('fs').createWriteStream(__dirname + `/records/record${id}.mcpr`);
+		
+		/*const output = require('fs').createWriteStream(__dirname + `/records/record${id}.mcpr`);
 		const archive = require('archiver')('zip', {
 			zlib: { level: 9 } // Sets the compression level.
 		});
@@ -66,7 +65,7 @@ var newBot = (username) => new Promise((res, rej) => {
 		archive.append(Buffer.from(JSON.stringify(recordMetaData)), { name: 'metaData.json' });
 		
 		archive.finalize();
-		console.log(`Replay saved with id ${id}`)
+		console.log(`Replay saved with id ${id}`)*/
 	}
 
 	function getTime(start) {
@@ -90,14 +89,17 @@ var newBot = (username) => new Promise((res, rej) => {
 
 	function writePackets(bot) {
 		bot._client.on('packet', (data, metaData, buff, fullBuffer) => {
-			record = record + hexToBuffer(padZeros(getTime(startTime).toString(16), 8)) + hexToBuffer(padZeros(fullBuffer.length.toString(16), 8)) + fullBuffer;
-			
+			//record = record + hexToBuffer(padZeros(getTime(startTime).toString(16), 8)) + hexToBuffer(padZeros(fullBuffer.length.toString(16), 8)) + fullBuffer;
+			fs.appendFileSync(`${__dirname}/records/recording${id}.tmcpr`, hexToBuffer(padZeros(getTime(startTime).toString(16), 8)) + hexToBuffer(padZeros(fullBuffer.length.toString(16), 8)) + fullBuffer)
 		})
 	}
 	var startTime = getTime(0);
 	
 	var windowOpened = 0
 	var menu = false
+	const id = Math.floor(Math.random() * 32767)
+	//require('fs').promises.writeFile(`recording${id}.tmcpr`, record);
+	fs.promises.appendFile(`${__dirname}/records/ids.txt`, `ID: ${id}; Time: ${Date()}` + '\n');
 	const bot = mineflayer.createBot({
 	  host: cfg.ip,
 	  port: cfg.port,
@@ -119,7 +121,7 @@ var newBot = (username) => new Promise((res, rej) => {
 		selfId: -1,
 		players: []
 	}
-	writePackets(bot)
+	//writePackets(bot)
 	
 	bot.on('windowOpen', window => {
 		if(windowOpened < 3) {
@@ -232,7 +234,7 @@ main('A') // многопоточность уровня 3000
 main('B')
 main('C')*/
 try {
-	newBot(cfg.firstUsername)
+	//newBot(cfg.firstUsername)
 	app.listen(8080);
 } catch(e) {
 	console.log('-----------------------')
