@@ -15,9 +15,6 @@ app.use(bodyParser.json());
  
 app.use(express.static(__dirname));
 
-app.listen(8000);
-
-
 
 
 /*if (process.argv.length < 4 || process.argv.length > 6) {
