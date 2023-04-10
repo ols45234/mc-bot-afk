@@ -1,5 +1,4 @@
 ﻿const mineflayer = require('mineflayer');
-const fs = require('fs/promises');
 const traslator = require('./lang_traslate.json')
 const levenshtein = require('js-levenshtein');
 const {once} = require('events');
