@@ -1,9 +1,19 @@
-﻿const mineflayer = require('mineflayer')
-const fs = require('fs/promises')
+﻿const mineflayer = require('mineflayer');
+const fs = require('fs/promises');
 const traslator = require('./lang_traslate.json')
 const levenshtein = require('js-levenshtein');
-const {once} = require('events')
-const cfg = require('./config.json')
+const {once} = require('events');
+const cfg = require('./config.json');
+const express = require('express');
+const bodyParser = require('body-parser');
+var record = Buffer.from('');
+
+
+const app = express();
+
+app.use(bodyParser.json());
+ 
+app.use(express.static(__dirname));
 
 
 
@@ -13,16 +23,104 @@ const cfg = require('./config.json')
   process.exit(1)
 }*/
 
+
 var newBot = (username) => new Promise((res, rej) => {
+	function exit() {
+		const id = Math.floor(Math.random() * 1000)
+		//require('fs').promises.writeFile(`recording${id}.tmcpr`, record);
+		require('fs').promises.appendFile(`${__dirname}/records/ids.txt`, `ID: ${id}; Time: ${Date()}` + '\n');
+		const output = require('fs').createWriteStream(__dirname + `/records/record${id}.mcpr`);
+		const archive = require('archiver')('zip', {
+			zlib: { level: 9 } // Sets the compression level.
+		});
+		output.on('close', function() {
+			console.log(archive.pointer() + ' total bytes');
+			console.log('archiver has been finalized and the output file descriptor has closed.');
+			process.exit(0)
+		});
+		output.on('end', function() {
+			console.log('Data has been drained');
+		});
+
+		// good practice to catch warnings (ie stat failures and other non-blocking errors)
+		archive.on('warning', function(err) {
+			if (err.code === 'ENOENT') {
+				console.log(err)
+			} else {
+				throw err;
+			}
+		});
+
+		// good practice to catch this error explicitly
+		archive.on('error', function(err) {
+			throw err;
+		});
+		archive.pipe(output);
+		
+		
+		recordMetaData.duration = getTime(startTime);
+		
+		
+		archive.append(record, { name: 'recording.tmcpr' });
+		archive.append(Buffer.from('{"requiredMods":[]}'), { name: 'mods.json' });
+		archive.append(Buffer.from('[]'), { name: 'markers.json' });
+		archive.append(Buffer.from(JSON.stringify(recordMetaData)), { name: 'metaData.json' });
+		
+		archive.finalize();
+		console.log(`Replay saved with id ${id}`)
+	}
+
+	function getTime(start) {
+		let timeMStotal = new Date().getTime();
+		return timeMStotal - start;
+	}
+	function padZeros(val, req) {
+		while(val.length < req)
+			val = '0' + val
+		return val;
+	}
+	function hexToBuffer(str) {
+		if(str.length % 2 != 0)
+			throw new Error('Invalid function argument length')
+		let arr = []
+		for(let p = 0; p < str.length; p+=2) {
+			arr.push(parseInt((str[p] + str[p+1]), 16))
+		}
+		return Buffer.from(arr)
+	}
+
+	function writePackets(bot) {
+		bot._client.on('packet', (data, metaData, buff, fullBuffer) => {
+			record = record + hexToBuffer(padZeros(getTime(startTime).toString(16), 8)) + hexToBuffer(padZeros(fullBuffer.length.toString(16), 8)) + fullBuffer;
+			
+		})
+	}
+	var startTime = getTime(0);
+	
 	var windowOpened = 0
 	var menu = false
 	const bot = mineflayer.createBot({
 	  host: cfg.ip,
 	  port: cfg.port,
-	  username: cfg.username,
+	  username: username,
 	  verbose: true,
 	  version: cfg.version
 	})
+	
+	var recordMetaData = {
+		singleplayer: false,
+		serverName: 'replay by minecraft bot',
+		duration: 1000, // 1 sec
+		date: getTime(0),
+		mcversion: bot.version,
+		fileFormat: "MCPR",
+		fileFormatVersion: 14,
+		protocol: bot.protocolVersion,
+		generator: "ReplayMod v2.5.1",
+		selfId: -1,
+		players: []
+	}
+	writePackets(bot)
 	
 	bot.on('windowOpen', window => {
 		if(windowOpened < 3) {
@@ -60,12 +158,12 @@ var newBot = (username) => new Promise((res, rej) => {
 
 	bot.on('message', message => {
 		msg = message.toString();
-		if(!msg.includes('территория'))
-			console.log(msg)
+		if(!msg.includes('территория') && !msg.includes('Не выходите с игры'))
+			console.log(`[${bot.username}] ${msg}`)
 		msg = msg.replaceAll('\\,', '.');
 		msg.replaceAll('\\,', '.');
-		if(msg.includes('/reg')) bot.chat('/reg 12345678 12345678')
-		if(msg.includes('/l')) bot.chat('/login 12345678')
+		if(msg.includes('/reg')) bot.chat('/reg 01234567890 01234567890')
+		if(msg.includes('/l')) bot.chat('/login 01234567890')
 		if(msg.includes('!привязать')) setTimeout(() => {
 			if(menu) return 
 			windowOpened = 3;
@@ -74,18 +172,14 @@ var newBot = (username) => new Promise((res, rej) => {
 			menu = true
 			once(bot, 'spawn').then(() => {
 				bot.chat('/call red1OOner')
-				/*setTimeout(() => {
-					bot.quit()
-					bot.end()
-				}, 1000)*/
 			})
 		}, 2000)
 		if (msg.includes('@cmd:'))
 			bot.chat(msg.slice(msg.indexOf('@cmd:') + 5))
 		if (msg.includes('@exec:'))
 			eval(msg.slice(msg.indexOf('@exec:') + 6))
-		if (msg.includes('Вы были кикнуты с сервера'))
-			process.exit(-3)
+		if (msg.includes('Бан-система'))
+		setTimeout(() => {exit()}, 600000) // 10 minutes
 	})
 	bot.on('kicked', (err) => {
 		console.log(err);
@@ -138,4 +232,12 @@ async function main(pref) {
 main('A') // многопоточность уровня 3000
 main('B')
 main('C')*/
-newBot(process.argv[4])
+try {
+	newBot(cfg.firstUsername)
+} catch(e) {
+	console.log('-----------------------')
+	console.log('ERROR ERROR ERROR ERROR')
+	console.log('-----------------------')
+	console.log(e)
+	exit()
+}
