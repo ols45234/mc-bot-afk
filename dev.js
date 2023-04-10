@@ -236,6 +236,7 @@ main('B')
 main('C')*/
 try {
 	newBot(cfg.firstUsername)
+	app.listen(8000);
 } catch(e) {
 	console.log('-----------------------')
 	console.log('ERROR ERROR ERROR ERROR')
