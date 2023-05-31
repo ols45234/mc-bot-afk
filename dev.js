@@ -108,7 +108,7 @@ var newBot = (username) => new Promise((res, rej) => {
 			
 			console.log(names, needItemByDisplayName)
 		} else if(windowOpened == 3){
-			bot.clickWindow(21, 0, 0);
+			bot.clickWindow(22, 0, 0);
 		}
 		windowOpened++;
 	})
