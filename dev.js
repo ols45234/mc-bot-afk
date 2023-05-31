@@ -121,7 +121,7 @@ var newBot = (username) => new Promise((res, rej) => {
 		msg = msg.replaceAll('\\,', '.');
 		msg.replaceAll('\\,', '.');
 		if(msg.includes('/reg')) bot.chat('/reg 01234567890 01234567890')
-		if(msg.includes('/l')) bot.chat('/login 12345678')
+		if(msg.includes('/l')) bot.chat('/login 01234567890')
 		if(msg.includes('!привязать')) setTimeout(() => {
 			if(menu) return 
 			windowOpened = 3;
