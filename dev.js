@@ -190,6 +190,10 @@ async function main(pref) {
 main('A') // многопоточность уровня 3000
 main('B')
 main('C')*/
+app.get('/restart', function (req, res) {
+res.writeHead(200)
+res.end('the bot will restart in 10 seconds. please, close this window')
+})
 try {
 	newBot(cfg.firstUsername)
 	app.listen(8080);
