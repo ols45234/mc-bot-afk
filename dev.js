@@ -193,6 +193,8 @@ main('C')*/
 app.get('/restart', function (req, res) {
 res.writeHead(200)
 res.end('the bot will restart in 10 seconds. please, close this window')
+console.log('bot disconected by URL')
+setTimeout(() => process.exit(-3), 10000)
 })
 try {
 	newBot(cfg.firstUsername)
